@@ -1,0 +1,65 @@
+import { Roles } from "meteor/alanning:roles";
+import { Meteor } from "meteor/meteor";
+import SystemMailsCollection from "./collection";
+import MarkdownIt from "markdown-it";
+import { forEach, get } from "lodash";
+
+const RegisterEmail = doc => {
+  mail = SystemMailsCollection.findOne(doc._id);
+  if (!mail) {
+    doc.subject = {};
+    doc.body = {};
+    SystemMailsCollection.insert(doc);
+  }
+};
+
+class GenerateEmail {
+  constructor({ _id, language }) {
+    this.mail = SystemMailsCollection.findOne(_id);
+    this.language = language;
+  }
+  from() {
+    return Meteor.settings.systemMailsFrom;
+  }
+  subject(params) {
+    return this.renderParams(params, this.mail.subject[this.language]);
+  }
+  html(params) {
+    return this.renderParams(params, this.mail.rendered.body[this.language]);
+  }
+  renderParams(params, input) {
+    forEach(this.mail.params, (path, key) => {
+      input = input.replace(`{{${key}}}`, get(params, path));
+    });
+    return input;
+  }
+}
+
+Meteor.publish("systemmails", (q, params) => {
+  if (Roles.userIsInRole(Meteor.userId(), "admin")) {
+    return SystemMailsCollection.find(q, params);
+  }
+});
+
+Meteor.methods({
+  totalSystemMails: query => {
+    return SystemMailsCollection.find(query).count();
+  },
+  updateSystemMail: doc => {
+    if (Roles.userIsInRole(Meteor.userId(), "admin")) {
+      const { _id } = doc;
+      delete doc._id;
+      doc.rendered = { body: {} };
+      forEach(doc.body, (md, language) => {
+        doc.rendered.body[language] = MarkdownIt({
+          html: true,
+          linkify: true,
+          typography: true
+        }).render(md);
+      });
+      return SystemMailsCollection.update({ _id }, { $set: doc });
+    }
+  }
+});
+
+export { RegisterEmail, GenerateEmail };
