@@ -12,11 +12,14 @@ import {
   FormGroup,
   Button,
   Label,
-  Input
+  Input,
+  Row,
+  Col
 } from "reactstrap";
 import { NewAlert } from "meteor/lef:alerts";
 import MarkdownIt from "markdown-it";
 import PropTypes from "prop-types";
+import { MarkdownImageUpload } from "meteor/lef:imgupload";
 
 const Overview = ({ history, match }) => {
   return (
@@ -85,7 +88,7 @@ class Edit extends React.Component {
   }
   insertParam(param, where) {
     const { mail, language } = this.state;
-    mail[where][language] += ` {{${param}}}`;
+    mail[where][language] = `${mail[where][language] || ""} {{${param}}}`;
     this.setState({ mail });
   }
   save() {
@@ -145,18 +148,31 @@ class Edit extends React.Component {
             insertParam={this.insertParam}
             where="body"
           />
-          <FormGroup>
-            <Label>
-              <Translate _id="email_body" />
-            </Label>
-            <Input
-              type="textarea"
-              name="body"
-              rows="10"
-              value={body[language] || ""}
-              onChange={this.handleChange}
-            />
-          </FormGroup>
+          <Row>
+            <Col md="9">
+              <FormGroup>
+                <Label>
+                  <Translate _id="email_body" />
+                </Label>
+                <Input
+                  type="textarea"
+                  name="body"
+                  rows="10"
+                  value={body[language] || ""}
+                  onChange={this.handleChange}
+                />
+              </FormGroup>
+            </Col>
+            <Col md="3">
+              <MarkdownImageUpload
+                onSubmit={tag => {
+                  const { mail, language } = this.state;
+                  mail.body[language] = (mail.body[language] || "") + " " + tag;
+                  this.setState({ mail });
+                }}
+              />
+            </Col>
+          </Row>
           <Button onClick={this.save} color="success">
             <Translate _id="save" />
           </Button>{" "}
