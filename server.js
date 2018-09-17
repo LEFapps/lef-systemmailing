@@ -23,10 +23,13 @@ class GenerateEmail {
     return Meteor.settings.systemMailsFrom
   }
   subject (params) {
-    return this.renderParams(params, this.mail.subject[this.language])
+    return this.renderParams(params, this.mail.subject[this.language] || '')
   }
   html (params) {
-    return this.renderParams(params, this.mail.rendered.body[this.language])
+    return this.renderParams(
+      params,
+      this.mail.rendered.body[this.language] || ''
+    )
   }
   renderParams (params, input) {
     forEach(this.mail.params, (path, key) => {
