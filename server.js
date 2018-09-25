@@ -5,10 +5,11 @@ import MarkdownIt from 'markdown-it'
 import { forEach, get } from 'lodash'
 
 const RegisterEmail = doc => {
-  mail = SystemMailsCollection.findOne(doc._id)
+  const mail = SystemMailsCollection.findOne(doc._id)
   if (!mail) {
     doc.subject = {}
     doc.body = {}
+    doc.rendered = { body: {} }
     SystemMailsCollection.insert(doc)
   }
 }
@@ -32,6 +33,7 @@ class GenerateEmail {
     )
   }
   renderParams (params, input) {
+    if (!input) return JSON.stringify(params)
     forEach(this.mail.params, (path, key) => {
       input = input.replace(`{{${key}}}`, get(params, path))
     })
