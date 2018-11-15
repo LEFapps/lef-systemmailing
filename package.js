@@ -1,6 +1,6 @@
 Package.describe({
   summary: 'Admin view and editor for automated system mailings',
-  version: '1.0.4',
+  version: '1.0.5',
   name: 'lef:systemmailing',
   git: 'https://github.com/LEFapps/lef-systemmailing'
 })
@@ -10,6 +10,7 @@ Package.onUse(api => {
     'ecmascript',
     'mongo',
     'lef:adminlist',
+    'lef:imgupload',
     'alanning:roles',
     'lef:alerts'
   ])
