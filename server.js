@@ -35,7 +35,8 @@ class GenerateEmail {
   renderParams (params, input) {
     if (!input) return JSON.stringify(params)
     forEach(this.mail.params, (path, key) => {
-      input = input.replace(`{{${key}}}`, get(params, path))
+      const pattern = new RegExp(`{{${key}}}`, 'g')
+      input = input.replace(pattern, get(params, path, ''))
     })
     return input
   }
