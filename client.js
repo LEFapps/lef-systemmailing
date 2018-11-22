@@ -29,6 +29,7 @@ const Overview = ({ history, match }) => {
       </h1>
       <AdminList
         collection={SystemMailsCollection}
+        getIdsCall='getSystemMailsIds'
         subscription='systemmails'
         fields={['_id']}
         getTotalCall='totalSystemMails'

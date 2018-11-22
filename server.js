@@ -52,6 +52,9 @@ Meteor.methods({
   totalSystemMails: query => {
     return SystemMailsCollection.find(query).count()
   },
+  getSystemMailsIds: (query, params) => {
+    return SystemMailsCollection.find(query, params).map(({ _id }) => _id)
+  },
   updateSystemMail: doc => {
     if (Roles.userIsInRole(Meteor.userId(), 'admin')) {
       const { _id } = doc
