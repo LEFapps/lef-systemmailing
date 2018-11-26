@@ -37,7 +37,3 @@ Accounts.emailTemplates = {
   }
 };
 ```
-
-## Installation
-
-Git clone this repository into your project `packages` folder and `meteor add lef:translations`.

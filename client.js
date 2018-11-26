@@ -1,4 +1,5 @@
 import React from 'react'
+import { Meteor } from 'meteor/meteor'
 import AdminList from 'meteor/lef:adminlist'
 import SystemMailsCollection from './collection'
 import { Switch, Route } from 'react-router-dom'
@@ -89,6 +90,7 @@ class Edit extends React.Component {
     const { mail, language } = this.state
     mail[where][language] = `${mail[where][language] || ''} {{${param}}}`
     this.setState({ mail })
+    document.getElementsByName(where)[0].focus()
   }
   save () {
     console.log(this.state.mail)
