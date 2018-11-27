@@ -27,10 +27,11 @@ class GenerateEmail {
     return this.renderParams(params, this.mail.subject[this.language] || '')
   }
   html (params) {
-    return this.renderParams(
-      params,
-      this.mail.rendered.body[this.language] || ''
-    )
+    let input = ''
+    if (this.mail.rendered && this.mail.rendered.body) {
+      input = this.mail.rendered.body[this.language]
+    }
+    return this.renderParams(params, input)
   }
   renderParams (params, input) {
     if (!input) return JSON.stringify(params)
