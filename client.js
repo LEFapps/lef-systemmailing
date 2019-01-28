@@ -34,7 +34,10 @@ const Overview = ({ history, match }) => {
         subscription='systemmails'
         fields={['_id']}
         getTotalCall='totalSystemMails'
-        edit={doc => history.push(`${match.url}/edit/${doc._id}`)}
+        edit={{
+          action: doc => `${match.url}/edit/${doc._id}`,
+          link: true
+        }}
       />
     </>
   )
@@ -113,7 +116,8 @@ class Edit extends React.Component {
             toggle={this.toggleLanguageSelect}
           >
             <DropdownToggle caret>
-              <Translate _id='edit_language' category='admin' />: {language.toUpperCase()}
+              <Translate _id='edit_language' category='admin' />:{' '}
+              {language.toUpperCase()}
             </DropdownToggle>
             <DropdownMenu>
               {translator.languages.map(language => {
