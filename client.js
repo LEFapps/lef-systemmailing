@@ -12,8 +12,12 @@ import {
   DropdownItem,
   FormGroup,
   Button,
+  ButtonGroup,
   Label,
   Input,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButtonDropdown,
   Row,
   Col
 } from 'reactstrap'
@@ -34,51 +38,59 @@ const Overview = ({ history, match }) => {
         subscription='systemmails'
         fields={['_id']}
         getTotalCall='totalSystemMails'
-        edit={{
-          action: doc => `${match.url}/edit/${doc._id}`,
-          link: true
-        }}
+        edit={{ action: doc => `${match.url}/edit/${doc._id}`, link: true }}
       />
     </>
   )
 }
 
-const InsertParams = ({ params, insertParam, where }) => {
-  return (
-    <>
-      <h6>
-        <Translate _id='insert' category='admin' />:
-      </h6>
-      {Object.keys(params).map(param => {
-        return (
-          <span key={param}>
-            <Button onClick={() => insertParam(param, where)}>
-              <Translate _id={param} category='admin' />
-            </Button>{' '}
-          </span>
-        )
-      })}
-    </>
-  )
+class InsertParams extends React.Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+      dropdownOpen: false
+    }
+  }
+  render () {
+    const { params, insertParam, where } = this.props
+    return (
+      <InputGroupButtonDropdown
+        addonType='append'
+        isOpen={this.state.dropdownOpen}
+        toggle={() => this.setState({ dropdownOpen: !this.state.dropdownOpen })}
+      >
+        <DropdownToggle caret color={'info'}>
+          <Translate _id='insert' category='admin' />
+        </DropdownToggle>
+        <DropdownMenu right>
+          {Object.keys(params).map(param => {
+            return (
+              <DropdownItem
+                onClick={() => insertParam(param, where)}
+                key={param}
+              >
+                <Translate _id={param} category='admin' />
+              </DropdownItem>
+            )
+          })}
+        </DropdownMenu>
+      </InputGroupButtonDropdown>
+    )
+  }
 }
 
 class Edit extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
-      dropdownOpen: false,
       language: this.props.translator.default
     }
-    this.toggleLanguageSelect = this.toggleLanguageSelect.bind(this)
     this.handleChange = this.handleChange.bind(this)
     this.insertParam = this.insertParam.bind(this)
     this.save = this.save.bind(this)
   }
   static getDerivedStateFromProps ({ mail }) {
     return { mail } || null
-  }
-  toggleLanguageSelect () {
-    this.setState({ dropdownOpen: !this.state.dropdownOpen })
   }
   changeLanguage (language) {
     this.setState({ language })
@@ -111,71 +123,89 @@ class Edit extends React.Component {
       return (
         <>
           <h1>Edit {_id}</h1>
-          <ButtonDropdown
-            isOpen={this.state.dropdownOpen}
-            toggle={this.toggleLanguageSelect}
-          >
-            <DropdownToggle caret>
-              <Translate _id='edit_language' category='admin' />:{' '}
-              {language.toUpperCase()}
-            </DropdownToggle>
-            <DropdownMenu>
-              {translator.languages.map(language => {
-                return (
-                  <DropdownItem
-                    onClick={() => this.changeLanguage(language)}
-                    key={language}
-                  >
-                    {language.toUpperCase()}
-                  </DropdownItem>
-                )
-              })}
-            </DropdownMenu>
-          </ButtonDropdown>
-          <InsertParams
-            params={params}
-            insertParam={this.insertParam}
-            where='subject'
-          />
-          <FormGroup>
-            <Label>
-              <Translate _id='subject' category='admin' />
-            </Label>
-            <Input
-              type='text'
-              name='subject'
-              value={subject[language] || ''}
-              onChange={this.handleChange}
-            />
-          </FormGroup>
-          <InsertParams
-            params={params}
-            insertParam={this.insertParam}
-            where='body'
-          />
+          <Row>
+            <Col xs={12} sm={9}>
+              <FormGroup>
+                <Label>
+                  <Translate _id='subject' category='admin' />
+                </Label>
+                <InputGroup>
+                  <Input
+                    type='text'
+                    name='subject'
+                    value={subject[language] || ''}
+                    onChange={this.handleChange}
+                  />
+                  <InsertParams
+                    params={params}
+                    insertParam={this.insertParam}
+                    where='subject'
+                  />
+                </InputGroup>
+              </FormGroup>
+            </Col>
+            <Col xs={12} sm={3}>
+              <FormGroup>
+                <Label>
+                  <Translate _id='edit_language' category='admin' />
+                </Label>
+                <div>
+                  <ButtonGroup size={'sm'}>
+                    {translator.languages.map(language => {
+                      return (
+                        <Button
+                          onClick={() => this.changeLanguage(language)}
+                          key={language}
+                          color={'warning'}
+                          className={
+                            this.state.language == language ? 'active' : ''
+                          }
+                        >
+                          {language.toUpperCase()}
+                        </Button>
+                      )
+                    })}
+                  </ButtonGroup>
+                </div>
+              </FormGroup>
+            </Col>
+          </Row>
           <Row>
             <Col md='9'>
               <FormGroup>
                 <Label>
                   <Translate _id='email_body' category='admin' />
                 </Label>
-                <Input
-                  type='textarea'
-                  name='body'
-                  rows='10'
-                  value={body[language] || ''}
-                  onChange={this.handleChange}
-                />
+                <InputGroup>
+                  <Input
+                    type='textarea'
+                    name='body'
+                    rows='10'
+                    value={body[language] || ''}
+                    onChange={this.handleChange}
+                  />
+                  <InsertParams
+                    params={params}
+                    insertParam={this.insertParam}
+                    where='body'
+                  />
+                </InputGroup>
               </FormGroup>
             </Col>
             <Col md='3'>
-              <MarkdownImageUpload
-                onSubmit={tag => {
-                  const { mail, language } = this.state
-                  mail.body[language] = (mail.body[language] || '') + ' ' + tag
-                  this.setState({ mail })
-                }}
-              />
+              <FormGroup>
+                <Label>
+                  <Translate _id='email_insert_image' category='admin' />
+                </Label>
+                <MarkdownImageUpload
+                  onSubmit={tag => {
+                    const { mail, language } = this.state
+                    mail.body[language] =
+                      (mail.body[language] || '') + ' ' + tag
+                    this.setState({ mail })
+                  }}
+                />
+              </FormGroup>
             </Col>
           </Row>
           <Button onClick={this.save} color='success'>
@@ -184,18 +214,20 @@ class Edit extends React.Component {
           <Button onClick={this.props.history.goBack} color='warning'>
             <Translate _id='cancel' category='admin' />
           </Button>
-          <h5>
-            <Translate _id='preview' category='admin' />
-          </h5>
-          <div
-            dangerouslySetInnerHTML={{
-              __html: MarkdownIt({
-                html: true,
-                linkify: true,
-                typography: true
-              }).render(body[language] || '')
-            }}
-          />
+          <article className={'my-4'}>
+            <h3>
+              <Translate _id='preview' category='admin' />
+            </h3>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: MarkdownIt({
+                  html: true,
+                  linkify: true,
+                  typography: true
+                }).render(body[language] || '')
+              }}
+            />
+          </article>
         </>
       )
     }
