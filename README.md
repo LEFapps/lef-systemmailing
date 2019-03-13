@@ -8,7 +8,6 @@ Set `{"systemMailsFrom": "Example <no-reply@example.com>"}` in your Meteor setti
 
 ```JSX
 import { RegisterEmail, GenerateEmail } from "meteor/lef:systemmailing";
-import { Translator } from "meteor/lef:translations";
 
 RegisterEmail({
   _id: "resetPassword",
@@ -27,13 +26,40 @@ Accounts.emailTemplates = {
     subject: user =>
       new GenerateEmail({
         _id: "resetPassword",
-        language: user.profile.language || translator.getCurrentLanguage()
+        language: user.profile.language || 'nl'
       }).subject({ user }),
     html: (user, url) =>
       new GenerateEmail({
         _id: "resetPassword",
-        language: user.profile.language || translator.getCurrentLanguage()
+        language: user.profile.language || 'nl'
       }).html({ user, url })
   }
 };
+```
+
+```JSX
+import { RegisterEmail, GenerateEmail } from 'meteor/lef:systemmailing'
+import { Email } from 'meteor/email'
+
+RegisterEmail({
+  _id: 'newNotifications',
+  params: {
+    name: 'user.profile.name',
+    totalNotifications: 'notifications.total'
+  }
+})
+
+const notifications = getSome()
+users.map(user => {
+  const email = new GenerateEmail({
+    _id: 'newNotifications',
+    language: user.profile.language || 'nl'
+  })
+  Email.send({
+    to: user.emails[0].address,
+    from: email.from(),
+    subject: email.subject({ user, notifications }),
+    html: email.html({ user, notifications })
+  })
+})
 ```
