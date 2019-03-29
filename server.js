@@ -11,6 +11,8 @@ const RegisterEmail = doc => {
     doc.body = {}
     doc.rendered = { body: {} }
     SystemMailsCollection.insert(doc)
+  } else {
+    SystemMailsCollection.update(doc._id, { $set: doc })
   }
 }
 
