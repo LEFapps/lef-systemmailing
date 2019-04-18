@@ -18,7 +18,11 @@ const RegisterEmail = doc => {
 
 class GenerateEmail {
   constructor ({ _id, language }) {
-    console.log(_id, language)
+    if (!language) {
+      throw new Meteor.Error(
+        'Cannot send mail without language for mail id: ' + _id
+      )
+    }
     this.mail = SystemMailsCollection.findOne(_id)
     this.language = language
   }
