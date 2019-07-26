@@ -1,6 +1,6 @@
 Package.describe({
   summary: 'Admin view and editor for automated system mailings',
-  version: '1.0.13',
+  version: '1.0.14',
   name: 'lef:systemmailing',
   git: 'https://github.com/LEFapps/lef-systemmailing'
 })

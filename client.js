@@ -6,7 +6,6 @@ import { Switch, Route } from 'react-router-dom'
 import { Translate, withTranslator } from 'meteor/lef:translations'
 import { withTracker } from 'meteor/react-meteor-data'
 import {
-  ButtonDropdown,
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
@@ -16,7 +15,6 @@ import {
   Label,
   Input,
   InputGroup,
-  InputGroupAddon,
   InputGroupButtonDropdown,
   Row,
   Col
@@ -26,20 +24,27 @@ import MarkdownIt from 'markdown-it'
 import PropTypes from 'prop-types'
 import { MarkdownImageUpload } from 'meteor/lef:imgupload'
 
-const Overview = ({ history, match }) => {
+const SystemMailsList = ({ match }) => {
   return (
     <>
-      <h1>
-        <Translate _id='system_mails' category='admin' />
-      </h1>
-      <AdminList
-        collection={SystemMailsCollection}
-        getIdsCall='getSystemMailsIds'
-        subscription='systemmails'
-        fields={['_id']}
-        getTotalCall='totalSystemMails'
-        edit={{ action: doc => `${match.url}/edit/${doc._id}`, link: true }}
-      />
+      <header className='admin-board__head'>
+        <Translate
+          _id='system_mails'
+          category='admin'
+          tag='h2'
+          className='admin-board__head-title'
+        />
+      </header>
+      <section className='admin-board__body'>
+        <AdminList
+          collection={SystemMailsCollection}
+          getIdsCall='getSystemMailsIds'
+          subscription='systemmails'
+          fields={['_id']}
+          getTotalCall='totalSystemMails'
+          edit={{ action: doc => `${match.url}/${doc._id}`, link: true }}
+        />
+      </section>
     </>
   )
 }
@@ -122,112 +127,118 @@ class Edit extends React.Component {
       const { _id, params, subject, body } = this.state.mail
       return (
         <>
-          <h1>Edit {_id}</h1>
-          <Row>
-            <Col xs={12} sm={9}>
-              <FormGroup>
-                <Label>
-                  <Translate _id='subject' category='admin' />
-                </Label>
-                <InputGroup>
-                  <Input
-                    type='text'
-                    name='subject'
-                    value={subject[language] || ''}
-                    onChange={this.handleChange}
+          <header className='admin-board__head'>
+            <h2 className='admin-board__head-title'>
+              <Translate _id='edit' category='admin' />: {_id}
+            </h2>
+          </header>
+          <section className='admin-board__body'>
+            <Row>
+              <Col xs={12} sm={9}>
+                <FormGroup>
+                  <Label>
+                    <Translate _id='subject' category='admin' />
+                  </Label>
+                  <InputGroup>
+                    <Input
+                      type='text'
+                      name='subject'
+                      value={subject[language] || ''}
+                      onChange={this.handleChange}
+                    />
+                    <InsertParams
+                      params={params}
+                      insertParam={this.insertParam}
+                      where='subject'
+                    />
+                  </InputGroup>
+                </FormGroup>
+              </Col>
+              <Col xs={12} sm={3}>
+                <FormGroup>
+                  <Label>
+                    <Translate _id='edit_language' category='admin' />
+                  </Label>
+                  <div>
+                    <ButtonGroup size={'sm'}>
+                      {translator.languages.map(language => {
+                        return (
+                          <Button
+                            onClick={() => this.changeLanguage(language)}
+                            key={language}
+                            color={'warning'}
+                            className={
+                              this.state.language == language ? 'active' : ''
+                            }
+                          >
+                            {language.toUpperCase()}
+                          </Button>
+                        )
+                      })}
+                    </ButtonGroup>
+                  </div>
+                </FormGroup>
+              </Col>
+            </Row>
+            <Row>
+              <Col md='9'>
+                <FormGroup>
+                  <Label>
+                    <Translate _id='email_body' category='admin' />
+                  </Label>
+                  <InputGroup>
+                    <Input
+                      type='textarea'
+                      name='body'
+                      rows='10'
+                      value={body[language] || ''}
+                      onChange={this.handleChange}
+                    />
+                    <InsertParams
+                      params={params}
+                      insertParam={this.insertParam}
+                      where='body'
+                    />
+                  </InputGroup>
+                </FormGroup>
+              </Col>
+              <Col md='3'>
+                <FormGroup>
+                  <Label>
+                    <Translate _id='email_insert_image' category='admin' />
+                  </Label>
+                  <MarkdownImageUpload
+                    onSubmit={tag => {
+                      const { mail, language } = this.state
+                      mail.body[language] =
+                        (mail.body[language] || '') + ' ' + tag
+                      this.setState({ mail })
+                    }}
                   />
-                  <InsertParams
-                    params={params}
-                    insertParam={this.insertParam}
-                    where='subject'
-                  />
-                </InputGroup>
-              </FormGroup>
-            </Col>
-            <Col xs={12} sm={3}>
-              <FormGroup>
-                <Label>
-                  <Translate _id='edit_language' category='admin' />
-                </Label>
-                <div>
-                  <ButtonGroup size={'sm'}>
-                    {translator.languages.map(language => {
-                      return (
-                        <Button
-                          onClick={() => this.changeLanguage(language)}
-                          key={language}
-                          color={'warning'}
-                          className={
-                            this.state.language == language ? 'active' : ''
-                          }
-                        >
-                          {language.toUpperCase()}
-                        </Button>
-                      )
-                    })}
-                  </ButtonGroup>
-                </div>
-              </FormGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col md='9'>
-              <FormGroup>
-                <Label>
-                  <Translate _id='email_body' category='admin' />
-                </Label>
-                <InputGroup>
-                  <Input
-                    type='textarea'
-                    name='body'
-                    rows='10'
-                    value={body[language] || ''}
-                    onChange={this.handleChange}
-                  />
-                  <InsertParams
-                    params={params}
-                    insertParam={this.insertParam}
-                    where='body'
-                  />
-                </InputGroup>
-              </FormGroup>
-            </Col>
-            <Col md='3'>
-              <FormGroup>
-                <Label>
-                  <Translate _id='email_insert_image' category='admin' />
-                </Label>
-                <MarkdownImageUpload
-                  onSubmit={tag => {
-                    const { mail, language } = this.state
-                    mail.body[language] =
-                      (mail.body[language] || '') + ' ' + tag
-                    this.setState({ mail })
-                  }}
-                />
-              </FormGroup>
-            </Col>
-          </Row>
-          <Button onClick={this.save} color='success'>
-            <Translate _id='save' category='admin' />
-          </Button>{' '}
-          <Button onClick={this.props.history.goBack} color='warning'>
-            <Translate _id='cancel' category='admin' />
-          </Button>
-          <article className={'my-4'}>
-            <h3>
-              <Translate _id='preview' category='admin' />
-            </h3>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: MarkdownIt({
-                  html: true,
-                  linkify: true,
-                  typography: true
-                }).render(body[language] || '')
-              }}
-            />
-          </article>
+                </FormGroup>
+              </Col>
+            </Row>
+            <Button onClick={this.save} color='success'>
+              <Translate _id='save' category='admin' />
+            </Button>{' '}
+            <Button onClick={this.props.history.goBack} color='warning'>
+              <Translate _id='cancel' category='admin' />
+            </Button>
+            <article className={'my-4'}>
+              <h3>
+                <Translate _id='preview' category='admin' />
+              </h3>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: MarkdownIt({
+                    html: true,
+                    linkify: true,
+                    typography: true
+                  }).render(body[language] || '')
+                }}
+              />
+            </article>
+          </section>
         </>
       )
     }
@@ -248,8 +259,8 @@ const EditContainer = withTranslator(
 const SystemMailsAdmin = ({ match }) => {
   return (
     <Switch>
-      <Route path={match.url} exact component={Overview} />
-      <Route path={match.url + '/edit/:_id'} exact component={EditContainer} />
+      <Route path={match.url} exact component={SystemMailsList} />
+      <Route path={match.url + '/:_id'} exact component={EditContainer} />
     </Switch>
   )
 }
@@ -259,3 +270,4 @@ SystemMailsAdmin.propTypes = {
 }
 
 export default SystemMailsAdmin
+export { SystemMailsList, EditContainer as SystemMailsEdit }
