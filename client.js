@@ -108,16 +108,32 @@ class Edit extends React.Component {
   }
   insertParam (param, where) {
     const { mail, language } = this.state
-    mail[where][language] = `${mail[where][language] || ''} {{${param}}}`
-    this.setState({ mail })
-    document.getElementsByName(where)[0].focus()
+    const inputId = `systemmail-input-${where}`
+    const value = mail[where][language] || ''
+    const input = document.getElementById(inputId)
+    const pos = [value.length, value.length]
+    if (input) {
+      pos[0] = input.selectionStart
+      pos[1] = input.selectionEnd
+    }
+    mail[where][language] = (
+      value.slice(0, pos[0]) +
+      ` {{${param}}} ` +
+      value.slice(pos[0])
+    ).replace(/ +/g, ' ')
+    this.setState({ mail }, () => {
+      input.focus()
+      input.selectionEnd = pos[1] + param.length + 5
+    })
   }
   save () {
-    console.log(this.state.mail)
-    Meteor.call('updateSystemMail', this.state.mail, (e, r) => {
-      if (r) NewAlert({ translate: 'saved', type: 'success' })
-      if (e) NewAlert({ msg: e.error, type: 'danger' })
-    })
+    console.debug(this.state.mail)
+    const callback = this.props.callback || this.callback
+    Meteor.call('updateSystemMail', this.state.mail, callback)
+  }
+  callback = (e, r) => {
+    if (r) NewAlert({ translate: 'saved', type: 'success' })
+    if (e) NewAlert({ msg: e.error, type: 'danger' })
   }
   render () {
     if (this.props.loading) return 'loading...'
@@ -134,27 +150,7 @@ class Edit extends React.Component {
           </header>
           <section className='admin-board__body'>
             <Row>
-              <Col xs={12} sm={9}>
-                <FormGroup>
-                  <Label>
-                    <Translate _id='subject' category='admin' />
-                  </Label>
-                  <InputGroup>
-                    <Input
-                      type='text'
-                      name='subject'
-                      value={subject[language] || ''}
-                      onChange={this.handleChange}
-                    />
-                    <InsertParams
-                      params={params}
-                      insertParam={this.insertParam}
-                      where='subject'
-                    />
-                  </InputGroup>
-                </FormGroup>
-              </Col>
-              <Col xs={12} sm={3}>
+              <Col xs={12}>
                 <FormGroup>
                   <Label>
                     <Translate _id='edit_language' category='admin' />
@@ -179,9 +175,28 @@ class Edit extends React.Component {
                   </div>
                 </FormGroup>
               </Col>
-            </Row>
-            <Row>
-              <Col md='9'>
+              <Col xs={12}>
+                <FormGroup>
+                  <Label>
+                    <Translate _id='subject' category='admin' />
+                  </Label>
+                  <InputGroup>
+                    <Input
+                      type='text'
+                      id={'systemmail-input-subject'}
+                      name='subject'
+                      value={subject[language] || ''}
+                      onChange={this.handleChange}
+                    />
+                    <InsertParams
+                      params={params}
+                      insertParam={this.insertParam}
+                      where='subject'
+                    />
+                  </InputGroup>
+                </FormGroup>
+              </Col>
+              <Col xs={12}>
                 <FormGroup>
                   <Label>
                     <Translate _id='email_body' category='admin' />
@@ -189,6 +204,7 @@ class Edit extends React.Component {
                   <InputGroup>
                     <Input
                       type='textarea'
+                      id={'systemmail-input-body'}
                       name='body'
                       rows='10'
                       value={body[language] || ''}
@@ -202,7 +218,7 @@ class Edit extends React.Component {
                   </InputGroup>
                 </FormGroup>
               </Col>
-              <Col md='3'>
+              <Col xs={12}>
                 <FormGroup>
                   <Label>
                     <Translate _id='email_insert_image' category='admin' />
