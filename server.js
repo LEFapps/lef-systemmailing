@@ -40,7 +40,7 @@ class GenerateEmail {
     return this.renderParams(params, input)
   }
   renderParams (params, input) {
-    if (!input) return 'Email not configured'
+    if (!input) return `System email ${this.mail._id} not configured`
     forEach(this.mail.params, (path, key) => {
       const pattern = new RegExp(`{{${key}}}`, 'g')
       input = input.replace(pattern, get(params, path, ''))
