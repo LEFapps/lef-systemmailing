@@ -23,6 +23,7 @@ import { NewAlert } from 'meteor/lef:alerts'
 import MarkdownIt from 'markdown-it'
 import PropTypes from 'prop-types'
 import { MarkdownImageUpload } from 'meteor/lef:imgupload'
+import mdPicture from 'markdown-it-picture'
 
 const SystemMailsList = ({ match }) => {
   return (
@@ -230,6 +231,10 @@ class Edit extends React.Component {
                         (mail.body[language] || '') + ' ' + tag
                       this.setState({ mail })
                     }}
+                    sizes={[
+                      { label: 'email', width: 600, height: 600, quality: 48 }
+                    ]}
+                    picture
                   />
                 </FormGroup>
               </Col>
@@ -250,7 +255,9 @@ class Edit extends React.Component {
                     html: true,
                     linkify: true,
                     typography: true
-                  }).render(body[language] || '')
+                  })
+                    .use(mdPicture)
+                    .render(body[language] || '')
                 }}
               />
             </article>

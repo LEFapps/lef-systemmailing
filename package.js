@@ -23,5 +23,6 @@ Npm.depends({
   reactstrap: '5.0.0',
   'prop-types': '15.6.2',
   'markdown-it': '8.4.2',
+  'markdown-it-picture': '0.0.1',
   lodash: '4.17.10'
 })
