@@ -1,6 +1,6 @@
 Package.describe({
   summary: 'Admin view and editor for automated system mailings',
-  version: '1.1.1',
+  version: '1.1.2',
   name: 'lef:systemmailing',
   git: 'https://github.com/LEFapps/lef-systemmailing'
 })
@@ -23,6 +23,5 @@ Npm.depends({
   reactstrap: '5.0.0',
   'prop-types': '15.6.2',
   'markdown-it': '8.4.2',
-  'markdown-it-picture': '0.0.1',
   lodash: '4.17.10'
 })
