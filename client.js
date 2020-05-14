@@ -41,6 +41,7 @@ const SystemMailsList = ({ match }) => {
           getIdsCall='getSystemMailsIds'
           subscription='systemmails'
           fields={['_id']}
+          defaultSort={{ _id: 1 }}
           getTotalCall='totalSystemMails'
           edit={{ action: doc => `${match.url}/${doc._id}`, link: true }}
         />
